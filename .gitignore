@@ -1,12 +1,30 @@
 # Virtual environments
 venv/
+venv312/
 .venv/
 env/
 
 # Python cache
 __pycache__/
 *.pyc
+*.pyo
+
+# Environment
+.env
 
 # Editor
 .vscode/
+.idea/
 
+# Database
+*.db
+*.sqlite3
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
