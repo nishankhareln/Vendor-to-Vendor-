@@ -114,8 +114,13 @@ def extract_product_info(message: str) -> dict[str, Any]:
     """Extract product info from a chat message using keyword + regex matching."""
     normalized = _normalize(message)
 
-    # Detect offer intent
-    offer_words = ["sell", "offer", "stock", "available", "supply", "have for sale", "wholesale"]
+    # Detect offer intent — match natural phrases vendors actually use
+    offer_words = [
+        "sell", "offer", "stock", "available", "supply", "wholesale",
+        "have for sale", "i have", "i had", "i got", "we have", "we got",
+        "selling", "offering", "providing",
+        "मसँग", "हामीसँग", "छ", "उपलब्ध", "बेच्छु", "बेच्ने", "स्टक",
+    ]
     is_offer = any(w in normalized for w in offer_words)
 
     # Find matching product from catalog
@@ -130,13 +135,14 @@ def extract_product_info(message: str) -> dict[str, Any]:
             matched_key = key
             break
 
-    # Extract price (supports Rs, NPR, रु, ₨ formats)
+    # Extract price (supports Rs, Rs., NPR, रु, ₨, and no-space like Rs50)
     price = None
     price_patterns = [
         r"(?:rs\.?|npr\.?|रु\.?|₨)\s*([\d,]+(?:\.\d{1,2})?)",
-        r"([\d,]+(?:\.\d{1,2})?)\s*(?:rs\.?|npr\.?|रु\.?|₨|रुपैयाँ|per\s+kg|per\s+piece|प्रति)",
+        r"([\d,]+(?:\.\d{1,2})?)\s*(?:rs\.?|npr\.?|रु\.?|₨|रुपैयाँ|per\s+kg|per\s+unit|per\s+piece|प्रति)",
         r"\$\s*([\d,]+(?:\.\d{1,2})?)",
-        r"(?:price|rate|मूल्य|दाम|रेट)\s*[:\-]?\s*([\d,]+(?:\.\d{1,2})?)",
+        r"(?:price|rate|cost|मूल्य|दाम|रेट)\s*[:\-]?\s*(?:rs\.?|रु\.?)?\s*([\d,]+(?:\.\d{1,2})?)",
+        r"(?:at|@)\s*(?:rs\.?|रु\.?)?\s*([\d,]+(?:\.\d{1,2})?)",
     ]
     for pattern in price_patterns:
         match = re.search(pattern, normalized)
